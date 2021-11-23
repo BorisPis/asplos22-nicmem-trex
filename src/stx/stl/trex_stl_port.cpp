@@ -1151,30 +1151,46 @@ TrexStatelessPort::push_remote(const std::string &pcap_filename,
 #endif
 
     /* only one core gets to play */
-    int tx_core = m_cores_id_list[0];
+    // int tx_core = m_cores_id_list[0];
 
     /* create async event */
     assert(m_pending_async_stop_event == TrexDpPortEvents::INVALID_ID);
     m_pending_async_stop_event = m_dp_events.create_event(new AsyncStopEvent());
 
     /* mark all other cores as done */
-    for (int index = 1; index < m_cores_id_list.size(); index++) {
-        /* mimic an end event */
-        m_dp_events.on_core_reporting_in(m_pending_async_stop_event, m_cores_id_list[index]);
+    // for (int index = 1; index < m_cores_id_list.size(); index++) {
+    for (auto core_id : m_cores_id_list) {
+	    /* mimic an end event */
+	    m_dp_events.on_core_reporting_in(m_pending_async_stop_event, core_id);
+	    // m_dp_events.on_core_reporting_in(m_pending_async_stop_event, m_cores_id_list[index]);
+
+	    /* send a message to core */
+	    change_state(PORT_STATE_PCAP_TX);
+	    TrexCpToDpMsgBase *push_msg = new TrexStatelessDpPushPCAP(m_port_id,
+								      m_pending_async_stop_event,
+								      pcap_filename,
+								      ipg_usec,
+								      min_ipg_sec,
+								      speedup,
+								      count,
+								      duration,
+								      is_dual);
+	    send_message_to_dp(core_id, push_msg);
+	    // send_message_to_dp(tx_core, push_msg);
     }
 
-    /* send a message to core */
-    change_state(PORT_STATE_PCAP_TX);
-    TrexCpToDpMsgBase *push_msg = new TrexStatelessDpPushPCAP(m_port_id,
-                                                              m_pending_async_stop_event,
-                                                              pcap_filename,
-                                                              ipg_usec,
-                                                              min_ipg_sec,
-                                                              speedup,
-                                                              count,
-                                                              duration,
-                                                              is_dual);
-    send_message_to_dp(tx_core, push_msg);
+    // /* send a message to core */
+    // change_state(PORT_STATE_PCAP_TX);
+    // TrexCpToDpMsgBase *push_msg = new TrexStatelessDpPushPCAP(m_port_id,
+    //                                                           m_pending_async_stop_event,
+    //                                                           pcap_filename,
+    //                                                           ipg_usec,
+    //                                                           min_ipg_sec,
+    //                                                           speedup,
+    //                                                           count,
+    //                                                           duration,
+    //                                                           is_dual);
+    // send_message_to_dp(tx_core, push_msg);
 
     /* update subscribers */    
     Json::Value data;
