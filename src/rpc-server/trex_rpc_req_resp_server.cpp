@@ -208,7 +208,7 @@ void TrexRpcServerReqRes::handle_request(const std::string &request) {
     std::string response;
 
     if ( request.size() > MAX_RPC_MSG_LEN ) {
-        std::string err_msg = "Request is too large (" + std::to_string(request.size()) + " bytes). Consider splitting to smaller chunks.";
+        std::string err_msg = "Request is too large (" + std::to_string(request.size()) + " bytes). Consider splitting to smaller chunks." + std::to_string(MAX_RPC_MSG_LEN) ;
         TrexJsonRpcV2Parser::generate_common_error(response, err_msg);
     } else {
         process_request(request, response);
