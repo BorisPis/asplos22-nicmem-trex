@@ -131,6 +131,7 @@ class CPgIdStats(object):
             stats['latency']['global'] = {}
             for val in json_keys_global.values():
                 stats['latency']['global'][val] = 0
+            stats['latency']['global']['ans_dict'] = len(ans_dict['latency'].keys())
             for pg_id in ans_dict['latency']:
                 # 'g' value is not a number
                 try:
@@ -163,6 +164,17 @@ class CPgIdStats(object):
                     lat['latency']['histogram'] = {}
                 if 'hdrh' in ans_dict['latency'][pg_id]['lat']:
                     lat['latency']['hdrh'] = ans_dict['latency'][pg_id]['lat']['hdrh']
+
+                if 'histogram1us' in ans_dict['latency'][pg_id]['lat']:
+                    lat['latency']['histogram1us'] = {int(k): v for k, v in ans_dict['latency'][pg_id]['lat']['histogram1us'].items()}
+                else:
+                    lat['latency']['histogram1us'] = {}
+                if 'histogram100ns' in ans_dict['latency'][pg_id]['lat']:
+                    lat['latency']['histogram100ns'] = {int(k): v for k, v in ans_dict['latency'][pg_id]['lat']['histogram100ns'].items()}
+                else:
+                    lat['latency']['histogram100ns'] = {}
+
+
 
         # translate json 'flow_stats' to python API 'flow_stats'
         if 'flow_stats' in ans_dict and ans_dict['flow_stats'] is not None:

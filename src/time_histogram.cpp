@@ -33,13 +33,13 @@ limitations under the License.
 /* minimum value to track is 1 usec */
 #define HDRH_LOWEST_TRACKABLE_VALUE 1
 /* maximum value to track is 10 sec in usec unit */
-#define HDRH_HIGHEST_TRACKABLE_VALUE (10*1000*1000)
+#define HDRH_HIGHEST_TRACKABLE_VALUE (10*1000)
 /* precision in number of digits, 3 corresponds to 0.1% precision:
    1 usec precision up to 1000 usec
    1 msec precision or better up to 1 sec
    1 sec precision or better up to 1000 sec
 */
-#define HDRH_SIGNIFICANT_DIGITS 3
+#define HDRH_SIGNIFICANT_DIGITS 5
 
 
 void CTimeHistogram::Reset() {
@@ -66,6 +66,8 @@ void CTimeHistogram::Reset() {
     if (m_hdrh) {
         hdr_reset(m_hdrh);
     }
+    memset(&m_1us_hist[0], 0, sizeof(m_1us_hist));
+    //memset(&m_100ns_hist[0], 0, sizeof(m_100ns_hist));
 }
 
 bool CTimeHistogram::Create() {
@@ -78,7 +80,9 @@ bool CTimeHistogram::Create() {
         }
     }
     Reset();
-    m_min_delta = 10.0/1000000.0;
+    //m_min_delta = 10.0/1000000.0;
+    //m_min_delta = 1.0/1000000.0;
+    m_min_delta = 100.0/1000000000.0;
     m_hot_max = 10;
     m_hot_max_done = false;
     return (true);
@@ -119,15 +123,20 @@ bool CTimeHistogram::Add(dsec_t dt) {
     }
     period_elem.inc_high_cnt();
 
-    uint32_t d_10usec = (uint32_t)(dt*100000.0);
+    //uint32_t d_10usec = (uint32_t)(dt*100000.0);
+    uint32_t d_1usec = (uint32_t)(dt*1000000.0);
+    //uint32_t d_100nsec = (uint32_t)(dt*10000000.0);
     // 1 10-19 usec
     //,2 -20-29 usec
     //,3,
 
+    /*
     int j;
     for (j = 0; j < HISTOGRAM_SIZE_LOG; j++) {
         uint32_t low  = d_10usec % 10;
         uint32_t high = d_10usec / 10;
+        //uint32_t low  = d_100nsec % 10;
+        //uint32_t high = d_100nsec / 10;
         if (high == 0) {
             if (low > 0) {
                 low = low - 1;
@@ -136,8 +145,19 @@ bool CTimeHistogram::Add(dsec_t dt) {
             break;
         } else {
             d_10usec = high;
+            //d_100nsec = high;
         }
     }
+    */
+    //add d_1usec to my field
+    if (d_1usec < DETAIL_HIST_SIZE) {
+        int i1us = (int)d_1usec;  //there was -1 here! wrong!
+        m_1us_hist[i1us]++;
+    }
+    // if (d_100nsec < DETAIL_HIST_SIZE*100) {
+    //     int i100ns = (int)d_100nsec;
+    //     m_100ns_hist[i100ns]++;
+    // }
 
     return true;
 }
@@ -292,6 +312,21 @@ void CTimeHistogram::dump_json(Json::Value & json, bool add_histogram) {
             }
             base = base * 10;
         }
+	/*    
+	for (i = 0; i < DETAIL_HIST_SIZE; i++) {
+	std::string key1us = static_cast<std::ostringstream*>( &(std::ostringstream()
+	<< int(i) ) )->str();
+	json["histogram1us"][key1us] = Json::Value::UInt64(m_1us_hist[i]);
+	}
+	*/
+	for (i = 0; i < DETAIL_HIST_SIZE; i++) {
+		// std::string key100ns = static_cast<std::ostringstream*>( &(std::ostringstream()
+		// 							   << int((i+1)*100) ) )->str();
+		// json["histogram100ns"][key100ns] = Json::Value::UInt64(m_100ns_hist[i]);
+		std::string key1us = static_cast<std::ostringstream*>( &(std::ostringstream()
+									   << int((i+1)) ) )->str();
+		json["histogram1us"][key1us] = Json::Value::UInt64(m_1us_hist[i]);
+	}
         CTimeHistogramPerPeriodData &period_elem = m_period_data[m_period];
         if (m_total_cnt != m_total_cnt_high) {
             // since we are not running update on each get call now, we should also
@@ -317,7 +352,7 @@ void CTimeHistogram::dump_json(Json::Value & json, bool add_histogram) {
                 free(hdr_encoded_histogram);
                 json["hdrh"] = Json::Value(hdr);
             }
-        }
+	}
     }
 }
 

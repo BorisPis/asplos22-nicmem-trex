@@ -93,6 +93,7 @@ public:
         HISTOGRAM_QUEUE_SIZE=14,
         HOT_MAX_PERIOD_UPDATE_CALLS = 4, // Represents the number of times update() needs to be called before considering the hot 
         // Max Latency period done. Update() is called every 0.5 secs, hence for now the HOT_MAX_PERIOD is 2 secs.
+        DETAIL_HIST_SIZE=4096,
     };
     bool Create(void);
     void Delete();
@@ -151,6 +152,8 @@ private:
     bool m_hot_max_done; // Flag that represents that the hot period in which Max Latency values should be ignored is done.
     dsec_t   m_max_ar[HISTOGRAM_QUEUE_SIZE]; // Array of maximum latencies for previous periods
     uint64_t m_hcnt[HISTOGRAM_SIZE_LOG][HISTOGRAM_SIZE];
+    uint64_t m_1us_hist[DETAIL_HIST_SIZE]; //detailed hist
+    //uint64_t m_100ns_hist[DETAIL_HIST_SIZE];
     hdr_histogram *m_hdrh; // Hdr histogram instance
 
 };
