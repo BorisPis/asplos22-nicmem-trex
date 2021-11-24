@@ -14,8 +14,8 @@ def fail(msg):
     print(msg)
     sys.exit(-1)
 
-if os.getuid() != 0:
-    fail('Please run this program as root/with sudo')
+# if os.getuid() != 0:
+#     fail('Please run this program as root/with sudo')
 
 cur_dir = os.path.abspath(os.path.dirname(__file__))
 ext_libs_path = os.path.join(cur_dir, 'external_libs')
@@ -58,6 +58,8 @@ def run_command(command, timeout = 30, poll_rate = 0.1, cwd = None, demote = Fal
         assert timeout > 0, 'Timeout should be positive'
         assert poll_rate > 0, 'Poll rate should be positive'
 
+
+    demote = False
     preexec_fn = demote_func if demote else None
 
     try: # P2

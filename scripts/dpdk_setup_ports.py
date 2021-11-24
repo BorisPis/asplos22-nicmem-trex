@@ -799,7 +799,7 @@ Other network devices
         if pa().emu:
             emu_zmq_tcp_flag = '--emu-zmq-tcp' if pa().emu_zmq_tcp else ''
             exe = './trex-emu {emu_zmq_tcp}'.format(emu_zmq_tcp =  emu_zmq_tcp_flag)
-            
+
             ret = os.system('{sys_exe} general_daemon_server restart -n {name} -c {core} --sudo -e "{exe}"'.format(sys_exe = sys.executable,
                                                                                                                       core = services_core,
                                                                                                                       name = 'Emu',
@@ -877,7 +877,7 @@ Other network devices
                 if iface_pci == device['Slot'].split('.')[0]:
                     if device.get('Driver_str') == 'i40e':
                         if pa() and pa().unbind_unused_ports:
-                            # if --unbind-unused-ports is set we unbind ports that are not 
+                            # if --unbind-unused-ports is set we unbind ports that are not
                             # used by TRex
                             unbind_devices.add(device['Slot'])
                         else:
@@ -958,7 +958,7 @@ Other network devices
             for key in if_list:
                 if key == 'dummy':
                     continue
-                if pa().no_ofed_check: # in case of no-ofed don't optimized for Azure 
+                if pa().no_ofed_check: # in case of no-ofed don't optimized for Azure
                     continue
                 key = self.split_pci_key(key)
                 if 'Virtual' not in self.m_devices[key]['Device_str']:
@@ -1107,7 +1107,7 @@ Other network devices
         cpu_topology = OrderedDict()
         base_path = "/sys/devices/system/cpu"
         cpus = []
-       
+
         file_re = re.compile(base_path + '/cpu([0-9]+)$')
         for cpu_dir in glob.glob('{}/cpu*'.format(base_path)):
             cpu_obj = file_re.match(cpu_dir)
@@ -1160,7 +1160,7 @@ Other network devices
         sorted_pci = sorted(self.m_devices.keys())
         for interface in input_interfaces:
             if interface == 'dummy':
-                dev = {} 
+                dev = {}
                 dev['Vendor_str'] = ''
                 dev['Slot'] = ''
                 dev['Slot_str'] = 'dummy'
@@ -1224,7 +1224,7 @@ Other network devices
 
     def do_create(self):
         show_table = not map_driver.args.no_prompt
-        dpdk_nic_bind.show_table(True,show_table) # get the info 
+        dpdk_nic_bind.show_table(True,show_table) # get the info
         ips = map_driver.args.ips
         def_gws = map_driver.args.def_gws
         dest_macs = map_driver.args.dest_macs
@@ -1616,8 +1616,8 @@ def cleanup_servers():
 
 def main ():
     try:
-        if os.getuid() != 0:
-            raise DpdkSetup('Please run this program as root/with sudo')
+        # if os.getuid() != 0:
+        #     raise DpdkSetup('Please run this program as root/with sudo')
 
         signal.signal(signal.SIGUSR1, signal_handler)
         process_options ()
@@ -1625,7 +1625,7 @@ def main ():
         if map_driver.args.cleanup_servers:
             cleanup_servers()
             return
-        
+
         if map_driver.args.show:
             dpdk_nic_bind.show_status()
             return

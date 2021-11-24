@@ -80,7 +80,7 @@ def _update_trex_process(package_path):
     ret_code, stdout, stderr = run_command('tar -xzf %s' % os.path.join(tmp_dir, file_name), timeout = 120, cwd = tmp_dir)
     if ret_code:
         return _update_error('Could not untar the package. %s' % [ret_code, stdout, stderr])
-    
+
     tmp_files = glob(os.path.join(tmp_dir, '*'))
     unpacked_dirs = []
     for tmp_file in tmp_files:
@@ -221,8 +221,8 @@ def _check_path_under_current_or_temp(path):
 
 ### Main ###
 
-if os.getuid() != 0:
-    fail('Please run this program as root/with sudo')
+# if os.getuid() != 0:
+#     fail('Please run this program as root/with sudo')
 
 pid = os.getpid()
 ret, out, err = run_command('taskset -pc 0 %s' % pid)

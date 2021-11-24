@@ -409,7 +409,7 @@ def get_nt_mac_address(pci_slot):
     '''This function attempts to get Napatech adapter MAC Address based on output of other tools.'''
     nt_devs = collect_nt_dev_info()
 
-    # there's no guarantee that NT driver is configured to handle the given card (i.e. it's not given that nt_devs[pci_slot] is known) 
+    # there's no guarantee that NT driver is configured to handle the given card (i.e. it's not given that nt_devs[pci_slot] is known)
     # hence we try to read MAC using a try-except construction
     try:
         mac = nt_devs[pci_slot]["Mac"]
