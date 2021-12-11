@@ -2,7 +2,7 @@
 Manage port state validation
 
 Author:
-  Itay Marom 
+  Itay Marom
 
 """
 from functools import wraps
@@ -107,7 +107,7 @@ class PortStateUp(PortState):
     def get_valid_ports (self, client):
         return [port_id for port_id in client.get_all_ports() if client.ports[port_id].is_up()]
 
-        
+
 class PortStateAcquired(PortState):
     @convert_profile_to_port("ports")
     def validate (self, client, cmd_name, ports, custom_err_msg = None):
@@ -171,10 +171,10 @@ class PortStateService(PortState):
 
     def def_err_msg (self):
         return 'must be under service mode'
-        
+
     def get_valid_ports (self, client):
         return [port_id for port_id in client.get_all_ports() if client.ports[port_id].is_service_mode_on()]
-    
+
 
 class PortStateNonService(PortState):
     @convert_profile_to_port("ports")
@@ -187,7 +187,7 @@ class PortStateNonService(PortState):
     def get_valid_ports (self, client):
         return [port_id for port_id in client.get_all_ports() if not client.ports[port_id].is_service_mode_on()]
 
-        
+
 class PortStateL3(PortState):
     @convert_profile_to_port("ports")
     def validate (self, client, cmd_name, ports, custom_err_msg = None):
@@ -219,12 +219,12 @@ class PortStateValidator(object):
         used to validate different groups of states
         required for 'ports'
     '''
-    
+
     def __init__ (self, client):
         self.client = client
 
         self.validators = {}
-        
+
         self.validators[_PSV_ALL]         = PortStateAll()
         self.validators[PSV_UP]           = PortStateUp()
         self.validators[PSV_ACQUIRED]     = PortStateAcquired()
@@ -235,12 +235,12 @@ class PortStateValidator(object):
         self.validators[PSV_SERVICE]      = PortStateService()
         self.validators[PSV_L3]           = PortStateL3()
         self.validators[PSV_NON_SERVICE]  = PortStateNonService()
-    
-            
+
+
     def validate (self, cmd_name, ports, states = None, allow_empty = False):
         '''
             main validator
-            
+
         '''
 
         # listify
@@ -250,8 +250,8 @@ class PortStateValidator(object):
         if not isinstance(ports, (set, list, tuple)):
             raise TRexTypeError('ports', type(ports), list)
 
-        if has_dup(ports):
-            raise TRexError('duplicate port(s) are not allowed')
+        # if has_dup(ports):
+        #     raise TRexError('duplicate port(s) are not allowed')
 
         if not ports and not allow_empty:
             raise TRexError('action requires at least one port')
@@ -260,10 +260,10 @@ class PortStateValidator(object):
         if ports:
             if isinstance(ports[0], PortProfileID):
                 ports = self.client.validate_profile_input(ports)
-            
+
         # default checks for every command
         states_map = {_PSV_ALL: None}
-        
+
         # eventually states is a map from every mandatory state to it's error message
         if isinstance(states, int):
             states_map[states] = None
